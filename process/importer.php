@@ -135,8 +135,8 @@ function create_thread($thread, $sf_id, $users, $mysqli) {
     // Create thread
     $title = $mysqli->real_escape_string($thread->title);
 
-    $sql = "insert into phpbb_topics(forum_id, topic_title)
-        values ($sf_id, '$title')";
+    $sql = "insert into phpbb_topics(forum_id, topic_title, topic_posts_approved)
+        values ($sf_id, '$title', ".count($thread->posts).")";
 
     query($sql, $mysqli);
 
@@ -160,7 +160,7 @@ function create_posts($posts, $sf_id, $thread_id, $users, $mysqli) {
     foreach($posts as $post)
         $post_insert[] = get_post_insert($post, $sf_id, $thread_id, $users, $mysqli);
 
-    $sql = "insert into phpbb_posts(forum_id, topic_id, poster_id, post_time, post_text)
+    $sql = "insert into phpbb_posts(forum_id, topic_id, poster_id, post_time, post_text, post_visibility)
         values ".join($post_insert, ", ");
 
     query($sql, $mysqli);
@@ -171,7 +171,7 @@ function get_post_insert($post, $sf_id, $thread_id, $users, $mysqli) {
     $time = strtotime($post->time);
     $content = $mysqli->real_escape_string(transform_content($post->content));
 
-    return "($sf_id, $thread_id, $user_id, $time,'$content')";
+    return "($sf_id, $thread_id, $user_id, $time,'$content', 1)";
 }
 
 function query($sql, $mysqli) {
