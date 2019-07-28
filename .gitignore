@@ -1,1 +1,3 @@
 config/database.php
+composer.lock
+vendor
