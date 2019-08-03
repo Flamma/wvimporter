@@ -155,6 +155,41 @@ class VideoSubst extends Subst {
     }
 }
 
+class MiaQuoteSubst extends Subst {
+    var $tag = 'div';
+
+    function applies(AbstractNode $element):bool {
+        return ($element->tag->name() == $this->tag) &&
+            ($element->getAttribute('class') == 'mia_bloque mia_cite');
+    }
+
+    function start(AbstractNode $element):string {
+        return '<QUOTE><s>[quote]</s>';
+    }
+
+    function end(AbstractNode $element):string {
+        return '<e>[/quote]</e></QUOTE>';
+    }
+}
+
+class MiaSpoilerSubst extends Subst {
+    var $tag = 'div';
+
+    function applies(AbstractNode $element):bool {
+
+        return ($element->tag->name() == $this->tag) &&
+            ($element->getAttribute('class') == 'mia_bloque mia_spoiler');
+    }
+
+    function start(AbstractNode $element):string {
+        return '<SPOIL><s>[spoil]</s>';
+    }
+
+    function end(AbstractNode $element):string {
+        return '<e>[/spoil]</e></SPOIL>';
+    }
+}
+
 // This must be always the last subst
 class NoMatchSubst extends Subst {
     function applies(AbstractNode $element):bool {
@@ -190,6 +225,8 @@ function get_substs() {
         new SameSubst('quote'),
         new ImgSubst(),
         new UrlSubst(),
+        new MiaQuoteSubst(),
+        new MiaSpoilerSubst(),
         new VideoSubst('youtube.com', 'YOUTUBE'),
         new VideoSubst('vimeo', 'VIMEO'),
         new VideoSubst('twitch.tv', 'TWITCH'),
@@ -237,8 +274,6 @@ function html_to_db_bbcode($content) {
     $substs = get_substs();
 
     $root = $dom->find('r')[0];
-    echo $root->text;
-
 
     return parse_element($root, $substs);
 }
