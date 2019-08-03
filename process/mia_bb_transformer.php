@@ -128,10 +128,12 @@ class VideoSubst extends Subst {
     var $tag = 'iframe';
     var $urlPattern;
     var $siteTag;
+    var $idPattern;
 
-    function __construct($urlPattern, $siteTag){
+    function __construct($urlPattern, $siteTag, $idPattern){
         $this->urlPattern = $urlPattern;
         $this->siteTag = $siteTag;
+        $this->idPattern = $idPattern;
     }
 
     function applies(AbstractNode $element):bool {
@@ -143,17 +145,27 @@ class VideoSubst extends Subst {
         $height = $element->getAttribute('height');
         $width = $element->getAttribute('width');
         $url = $element->getAttribute('src');
+        $id = $this->get_id($url);
 
         $videoAtts = ($height && $width) ? "=$width,$height" : '';
 
-        return '<'.$this->siteTag.
-            "><s>[bbvideo$videoAtts]</s><URL url=\"$url\">";
+        return '<'.$this->siteTag." id=\"$id\">".
+            "<s>[bbvideo$videoAtts]</s><URL url=\"$url\">$url</URL>";
+        // closed here to avoid something coming in between--^
     }
 
     function end(AbstractNode $element):string {
-        return '</URL><e>[/bbvideo]</e></'.$this->siteTag.'>';
+        return '<e>[/bbvideo]</e></'.$this->siteTag.'>';
+    }
+
+    function get_id($url) {
+        if(preg_match($this->idPattern, $url, $matches))
+            return $matches[1];
+
+        return '';
     }
 }
+
 
 class MiaQuoteSubst extends Subst {
     var $tag = 'div';
@@ -227,9 +239,10 @@ function get_substs() {
         new UrlSubst(),
         new MiaQuoteSubst(),
         new MiaSpoilerSubst(),
-        new VideoSubst('youtube.com', 'YOUTUBE'),
-        new VideoSubst('vimeo', 'VIMEO'),
-        new VideoSubst('twitch.tv', 'TWITCH'),
+        new VideoSubst('youtube.com/embed', 'YOUTUBE', '#youtube.com/embed/([a-zA-Z0-9_-]+)#'),
+        new VideoSubst('youtube.com', 'YOUTUBE', '#youtube.com/watch?v=([a-zA-Z0-9_-]+)#'),
+        new VideoSubst('vimeo', 'VIMEO', '#vimeo.com/([0-9]+)#'),
+        new VideoSubst('twitch.tv', 'TWITCH', '#videos/[0-9]+#'),
         new NoMatchSubst() // This should always be the last one
     );
 }
