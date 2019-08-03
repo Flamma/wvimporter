@@ -124,6 +124,37 @@ class EmptySubst extends SimpleSubst {
     }
 }
 
+class VideoSubst extends Subst {
+    var $tag = 'iframe';
+    var $urlPattern;
+    var $siteTag;
+
+    function __construct($urlPattern, $siteTag){
+        $this->urlPattern = $urlPattern;
+        $this->siteTag = $siteTag;
+    }
+
+    function applies(AbstractNode $element):bool {
+        return ($element->tag->name() == $this->tag) &&
+            (strpos($element->getAttribute('src'), $this->urlPattern) !== false);
+    }
+
+    function start(AbstractNode $element):string {
+        $height = $element->getAttribute('height');
+        $width = $element->getAttribute('width');
+        $url = $element->getAttribute('src');
+
+        $videoAtts = ($height && $width) ? "=$width,$height" : '';
+
+        return '<'.$this->siteTag.
+            "><s>[bbvideo$videoAtts]</s><URL url=\"$url\">";
+    }
+
+    function end(AbstractNode $element):string {
+        return '</URL><e>[/bbvideo]</e></'.$this->siteTag.'>';
+    }
+}
+
 // This must be always the last subst
 class NoMatchSubst extends Subst {
     function applies(AbstractNode $element):bool {
@@ -159,6 +190,9 @@ function get_substs() {
         new SameSubst('quote'),
         new ImgSubst(),
         new UrlSubst(),
+        new VideoSubst('youtube.com', 'YOUTUBE'),
+        new VideoSubst('vimeo', 'VIMEO'),
+        new VideoSubst('twitch.tv', 'TWITCH'),
         new NoMatchSubst() // This should always be the last one
     );
 }
