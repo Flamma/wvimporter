@@ -202,6 +202,35 @@ class MiaSpoilerSubst extends Subst {
     }
 }
 
+class ColorSubst extends Subst {
+    var $tag = 'span';
+    var $stylePattern = '/color: #([0-9a-fA-F]+);/';
+    var $matches = Array();
+
+
+    function applies(AbstractNode $element):bool {
+
+        return ($element->tag->name() == $this->tag) &&
+            (preg_match($this->stylePattern, $element->getAttribute('style'), $this->matches));
+    }
+
+    function start(AbstractNode $element):string {
+
+        if(count($this->matches)==0) {
+            preg_match($this->stylePattern, $element->getAttribute('style'), $this->matches);
+        }
+
+        $colour = strtoupper($this->matches[1]);
+
+        return "<COLOR color=\"#$colour\"><s>[color=#$colour]</s>";
+    }
+
+    function end(AbstractNode $element):string {
+        return '<e>[/color]</e></COLOR>';
+    }
+
+}
+
 // This must be always the last subst
 class NoMatchSubst extends Subst {
     function applies(AbstractNode $element):bool {
@@ -237,6 +266,7 @@ function get_substs() {
         new SameSubst('quote'),
         new ImgSubst(),
         new UrlSubst(),
+        new ColorSubst(),
         new MiaQuoteSubst(),
         new MiaSpoilerSubst(),
         new VideoSubst('youtube.com/embed', 'YOUTUBE', '#youtube.com/embed/([a-zA-Z0-9_-]+)#'),
