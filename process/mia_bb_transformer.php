@@ -149,6 +149,7 @@ class NoMatchSubst extends Subst {
 
 function get_substs() {
     return Array(
+        new SimpleSubst('p', '', "<br/>\n<br/>\n"),
         new EmptySubst('text'),
         new SameSubst('b'),
         new TagBBCodeSubst('strong','B', 'b'),
