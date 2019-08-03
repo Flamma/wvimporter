@@ -1,5 +1,5 @@
 {
     "require": {
-        "3f/converter": "dev-master"
+        "paquettg/php-html-parser": "2.0.2"
     }
 }
