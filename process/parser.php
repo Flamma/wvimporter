@@ -29,7 +29,9 @@ function parse_thread($entity) {
     foreach($entity->posts as $post)
         $posts[] = $post;
 
-    return new Thread($entity->title, $posts);
+    $threads = Array(new Thread($entity->title, $posts));
+
+    return new Subforum($entity->title, $threads);
 }
 
 function parse_post($entity) {
