@@ -199,6 +199,14 @@ class ColorSubst extends Subst {
 
 }
 
+class HeadingSubst extends SimpleSubst{
+    function __construct($hn, $size) {
+        parent::__construct("h$hn", "<SIZE size=\"$size\"><s>[size=$size]</s><B><s>[b]</s>",
+            "<e>[/b]</e></B><e>[/size]</e></SIZE><br/>\n<br/>\n"
+        );
+    }
+}
+
 // This must be always the last subst
 class NoMatchSubst extends Subst {
     function applies(AbstractNode $element):bool {
