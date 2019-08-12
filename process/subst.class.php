@@ -170,33 +170,74 @@ class MiaSpoilerSubst extends Subst {
     }
 }
 
-class ColorSubst extends Subst {
+class SpanSubst extends Subst {
     var $tag = 'span';
-    var $stylePattern = '/color: #([0-9a-fA-F]+);/';
-    var $matches = Array();
+    var $pattern = '/ *([^ :]+) *: *(.*)/';
 
+    function start(AbstractNode $element): string {
+        $expressions = explode(';', $element->getAttribute('style'));
 
-    function applies(AbstractNode $element):bool {
+        $result ='';
+        foreach($expressions as $expression) {
+            preg_match($this->pattern, $expression, $matches);
 
-        return ($element->tag->name() == $this->tag) &&
-            (preg_match($this->stylePattern, $element->getAttribute('style'), $this->matches));
-    }
-
-    function start(AbstractNode $element):string {
-
-        if(count($this->matches)==0) {
-            preg_match($this->stylePattern, $element->getAttribute('style'), $this->matches);
+            switch(strtolower($matches[1])) {
+                case('font-family'): $result .= SpanSubst::font_start($matches[2]); break;
+                case('text-decoration'): $result .= SpanSubst::text_decoration_start($matches[2]); break;
+                case('color'):
+                case('colour'): $result .= SpanSubst::colour_start($matches[2]); break;
+            }
         }
-
-        $colour = strtoupper($this->matches[1]);
-
-        return "<COLOR color=\"#$colour\"><s>[color=#$colour]</s>";
+        return $result;
     }
 
-    function end(AbstractNode $element):string {
+    function end(AbstractNode $element): string {
+        $expressions = explode(';', $element->getAttribute('style'));
+
+        $result ='';
+        foreach($expressions as $expression) {
+            preg_match($this->pattern, $expression, $matches);
+
+
+            switch(strtolower($matches[1])) {
+                case('font-family'): $result .= SpanSubst::font_end($matches[2]); break;
+                case('text-decoration'): $result .= SpanSubst::text_decoration_end($matches[2]); break;
+                case('color'):
+                case('colour'): $result .= SpanSubst::colour_end($matches[2]); break;
+            }
+        }
+        return $result;
+    }
+
+    static function font_start($value) {
+        return "<FONT font=\"$value\"><s>[font=$value]</s>";
+    }
+
+    static function font_end($value) {
+        return '<e>[/font]</e></FONT>';
+    }
+
+    static function text_decoration_start($value) {
+        switch($value) {
+            case 'line-through': return '<S><s>[s]</s>';
+            case 'underline': return '<U><s>[u]</s>';
+        }
+    }
+
+    static function text_decoration_end($value) {
+        switch($value) {
+            case 'line-through': return '<e>[/s]</e></S>';
+            case 'underline': return '<e>[/s]</e></S>';
+        }
+    }
+
+    static function colour_start($value) {
+        return "<COLOR color=\"$value\"><s>[color=$value]</s>";
+    }
+
+    static function colour_end($value) {
         return '<e>[/color]</e></COLOR>';
     }
-
 }
 
 class HeadingSubst extends SimpleSubst{
