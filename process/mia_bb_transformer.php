@@ -64,6 +64,8 @@ function get_substs() {
         new MiaQuoteSubst(),
         new MiaSpoilerSubst(),
         new SpanSubst(),
+        new SameSubst('sup'),
+        new SameSubst('sub'),
         new VideoSubst('youtube.com/embed', 'YOUTUBE', '#youtube.com/embed/([a-zA-Z0-9_-]+)#'),
         new VideoSubst('youtube.com', 'YOUTUBE', '#youtube.com/watch?v=([a-zA-Z0-9_-]+)#'),
         new VideoSubst('vimeo', 'VIMEO', '#vimeo.com/([0-9]+)#'),
