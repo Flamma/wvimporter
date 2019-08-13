@@ -40,7 +40,7 @@ function enclose($content) {
 
 function get_substs() {
     return Array(
-        new SimpleSubst('p', '', "<br/>\n<br/>\n"),
+        new PSubst(),
         new EmptySubst('text'),
         new SameSubst('b'),
         new SameSubst('s'),

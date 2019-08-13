@@ -170,8 +170,7 @@ class MiaSpoilerSubst extends Subst {
     }
 }
 
-class SpanSubst extends Subst {
-    var $tag = 'span';
+abstract class WithStyleSubst extends Subst {
     var $pattern = '/ *([^ :]+) *: *(.*)/';
 
     function start(AbstractNode $element): string {
@@ -180,12 +179,14 @@ class SpanSubst extends Subst {
         $result ='';
         foreach($expressions as $expression) {
             preg_match($this->pattern, $expression, $matches);
-
-            switch(strtolower($matches[1])) {
-                case('font-family'): $result .= SpanSubst::font_start($matches[2]); break;
-                case('text-decoration'): $result .= SpanSubst::text_decoration_start($matches[2]); break;
-                case('color'):
-                case('colour'): $result .= SpanSubst::colour_start($matches[2]); break;
+            if(count($matches) > 0) {
+                switch(strtolower($matches[1])) {
+                    case('font-family'): $result .= SpanSubst::font_start($matches[2]); break;
+                    case('text-decoration'): $result .= SpanSubst::text_decoration_start($matches[2]); break;
+                    case('color'):
+                    case('colour'): $result .= SpanSubst::colour_start($matches[2]); break;
+                    case('text-align'): $result .= SpanSubst::text_align_start($matches[2]); break;
+                }
             }
         }
         return $result;
@@ -197,13 +198,14 @@ class SpanSubst extends Subst {
         $result ='';
         foreach($expressions as $expression) {
             preg_match($this->pattern, $expression, $matches);
-
-
-            switch(strtolower($matches[1])) {
-                case('font-family'): $result .= SpanSubst::font_end($matches[2]); break;
-                case('text-decoration'): $result .= SpanSubst::text_decoration_end($matches[2]); break;
-                case('color'):
-                case('colour'): $result .= SpanSubst::colour_end($matches[2]); break;
+            if(count($matches) > 0) {
+                switch(strtolower($matches[1])) {
+                    case('font-family'): $result .= SpanSubst::font_end($matches[2]); break;
+                    case('text-decoration'): $result .= SpanSubst::text_decoration_end($matches[2]); break;
+                    case('color'):
+                    case('colour'): $result .= SpanSubst::colour_end($matches[2]); break;
+                    case('text-align'): $result .= SpanSubst::text_align_end($matches[2]); break;
+                }
             }
         }
         return $result;
@@ -237,6 +239,26 @@ class SpanSubst extends Subst {
 
     static function colour_end($value) {
         return '<e>[/color]</e></COLOR>';
+    }
+
+    static function text_align_start($value) {
+        return "<ALIGN align=\"$value\"><s>[align=$value]</s>";
+    }
+
+    static function text_align_end($value) {
+        return '<e>[/align]</e></ALIGN>';
+    }
+
+}
+
+class SpanSubst extends WithStyleSubst {
+    var $tag = 'span';
+}
+
+class PSubst extends WithStyleSubst {
+    var $tag = 'p';
+    function end(AbstractNode $element): string {
+        return parent::end($element)."<br/>\n<br/>\n";
     }
 }
 
