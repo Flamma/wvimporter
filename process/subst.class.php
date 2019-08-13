@@ -229,7 +229,7 @@ abstract class WithStyleSubst extends Subst {
     static function text_decoration_end($value) {
         switch($value) {
             case 'line-through': return '<e>[/s]</e></S>';
-            case 'underline': return '<e>[/s]</e></S>';
+            case 'underline': return '<e>[/u]</e></U>';
         }
     }
 
