@@ -1,3 +1,4 @@
 config/database.php
+config/usermap.php
 composer.lock
 vendor

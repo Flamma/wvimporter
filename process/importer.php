@@ -2,6 +2,7 @@
 
 require_once('model.php');
 require_once('../config/database.php');
+require_once('../config/usermap.php');
 require_once('mia_bb_transformer.php');
 
 $IMPORT_FORUM_NAME = "IMPORT ".date('c')." ";
@@ -52,12 +53,17 @@ function connect($config) {
     return $mysqli;
 }
 
+function get_new_username($old_username) {
+    global $USERMAP;
+    return isset($USERMAP[$old_username]) ? $USERMAP[$old_username] : $old_username;
+}
+
 function get_users_from_subforum($subforum) {
     $usernames = Array();
 
     foreach($subforum->threads as $thread)
         foreach($thread->posts as $post)
-            $usernames[$post->username] = true;
+            $usernames[get_new_username($post->username)] = true;
 
     return array_keys($usernames);
 }
@@ -167,7 +173,7 @@ function create_posts($posts, $sf_id, $thread_id, $users, $mysqli) {
 }
 
 function get_post_insert($post, $sf_id, $thread_id, $users, $mysqli) {
-    $user_id = $users[$post->username];
+    $user_id = $users[get_new_username($post->username)];
     $time = strtotime($post->time);
     $content = $mysqli->real_escape_string(transform_content($post->content));
 
