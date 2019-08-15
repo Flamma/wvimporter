@@ -15,10 +15,7 @@ function import($subforum) {
        die ("Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
     }
 
-    if(!$mysqli->begin_transaction(MYSQLI_TRANS_START_READ_WRITE)) {
-        $mysqli->close();
-        die ("Failed to begin transaction");
-    }
+    begin_transaction($mysqli);
 
     $sf_id = create_subforum($subforum, $mysqli);
 
@@ -36,9 +33,10 @@ function import($subforum) {
 
     create_threads($subforum, $sf_id, $users['registered'], $mysqli);
 
-    $mysqli->commit();
+    end_transaction($mysqli);
+    $mysqli->close();
 
-    echo "HECHO";
+    echo "DONE\n";
 
 }
 
@@ -51,6 +49,20 @@ function connect($config) {
     }
 
     return $mysqli;
+}
+
+function begin_transaction($mysqli) {
+    if(!$mysqli->autocommit(false)) {
+        $mysqli->close();
+        die ("Failed to begin transaction");
+    }
+}
+
+function end_transaction($mysqli) {
+    $mysqli->commit();
+    if(!$mysqli->autocommit(true)) {
+        print("WARNING: Unable to close the transaction\n");
+    }
 }
 
 function get_new_username($old_username) {
