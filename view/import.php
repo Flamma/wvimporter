@@ -11,9 +11,14 @@ if ( $metadata['error'] != 0 )
     die("Error ".$metadata['error']." leyendo el archivo de entrada");
 
 
+$content = file_get_contents($metadata['tmp_name']);
 
-$subforum = parse(file_get_contents($metadata['tmp_name']));
+if(!strlen($content) > 0)
+    die('File is empty');
+
+$subforum = parse($content);
 
 import($subforum);
 
+echo "DONE\n";
 print("</pre>");

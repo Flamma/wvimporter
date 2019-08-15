@@ -36,7 +36,6 @@ function import($subforum) {
     end_transaction($mysqli);
     $mysqli->close();
 
-    echo "DONE\n";
 
 }
 
