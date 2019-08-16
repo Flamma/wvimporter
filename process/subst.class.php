@@ -73,12 +73,13 @@ class ImgSubst extends Subst {
 
 class UrlSubst extends Subst {
 
-    var $tag = 'url';
+    var $tag = 'a';
     var $linkAttName = 'href';
 
     function start(AbstractNode $element):string {
         $link = $element->getAttribute($this->linkAttName);
-        $text = $element->plaintext;
+        $text = $element->text;
+
         return "<URL url=\"$link\"><s>[url]</s><LINK_TEXT text=\"$text\">";
     }
     function end(AbstractNode $element):string {
