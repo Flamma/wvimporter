@@ -93,16 +93,16 @@ class EmptySubst extends SimpleSubst {
     }
 }
 
-class VideoSubst extends Subst {
+abstract class VideoSubst extends Subst {
     var $tag = 'iframe';
     var $urlPattern;
     var $siteTag;
-    var $idPattern;
 
-    function __construct($urlPattern, $siteTag, $idPattern){
+    abstract function video_start(string $url, string $width, string $height);
+    abstract function video_end(string $url);
+
+    function __construct($urlPattern){
         $this->urlPattern = $urlPattern;
-        $this->siteTag = $siteTag;
-        $this->idPattern = $idPattern;
     }
 
     function applies(AbstractNode $element):bool {
@@ -114,25 +114,61 @@ class VideoSubst extends Subst {
         $height = $element->getAttribute('height');
         $width = $element->getAttribute('width');
         $url = $element->getAttribute('src');
-        $id = $this->get_id($url);
 
+        return $this->video_start($url, $width, $height);
+    }
+
+    function end(AbstractNode $element):string {
+        $url = $element->getAttribute('src');
+        return $this->video_end($url);
+    }
+
+}
+
+class VideoSubst_322 extends VideoSubst {
+    var $idPattern;
+
+    function __construct($urlPattern, $siteTag, $idPattern){
+        parent::__construct($urlPattern);
+        $this->idPattern = $idPattern;
+        $this->siteTag = $siteTag;
+    }
+
+    function video_start(string $url, string $width, string $height) {
         $videoAtts = ($height && $width) ? "=$width,$height" : '';
+        $id = $this->get_id($url);
 
         return '<'.$this->siteTag." id=\"$id\">".
             "<s>[bbvideo$videoAtts]</s><URL url=\"$url\">$url</URL>";
         // closed here to avoid something coming in between--^
     }
 
-    function end(AbstractNode $element):string {
+    function video_end(string $url) {
         return '<e>[/bbvideo]</e></'.$this->siteTag.'>';
     }
 
-    function get_id($url) {
+    private function get_id($url) {
         if(preg_match($this->idPattern, $url, $matches))
             return $matches[1];
 
         return '';
     }
+
+}
+
+class VideoSubst_314 extends VideoSubst {
+    function video_start(string $url, string $width, string $height) {
+        $videoAtts = ($height && $width) ? "=$width,$height" : '';
+        $id = $this->get_id($url);
+
+        return "<BBVIDEO bbvideo0=\"$width\" bbvideo1=\"$height\" content=\"$url\">".
+            "<s>[BBvideo=$width,$height]</s>$url";
+    }
+
+    function video_end(string $url) {
+        return '<e>[/BBvideo]</e></BBVIDEO>';
+    }
+
 }
 
 

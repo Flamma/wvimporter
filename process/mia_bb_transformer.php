@@ -2,6 +2,8 @@
 
 require_once '../vendor/autoload.php';
 require_once 'subst.class.php';
+require_once '../config/extensions.php';
+require_once 'video_subst_factory.php';
 
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Dom\AbstractNode;
@@ -39,6 +41,13 @@ function enclose($content) {
 
 
 function get_substs() {
+    global $VERSIONS;
+
+    $videoFactory = $VERSIONS['video'] == '3.1.4' ?
+        new VideoSubst314Factory() :
+        new VideoSubst322Factory()
+    ;
+
     return Array(
         new PSubst(),
         new EmptySubst('text'),
@@ -70,10 +79,10 @@ function get_substs() {
         new SimpleSubst('tr', "\n<br/><TR><s>[tr]</s>", "<e>[/tr]</e></TR>\n<br/>"),
         new SameSubst('th'),
         new SameSubst('td'),
-        new VideoSubst('youtube.com/embed', 'YOUTUBE', '#youtube.com/embed/([a-zA-Z0-9_-]+)#'),
-        new VideoSubst('youtube.com', 'YOUTUBE', '#youtube.com/watch?v=([a-zA-Z0-9_-]+)#'),
-        new VideoSubst('vimeo', 'VIMEO', '#vimeo.com/([0-9]+)#'),
-        new VideoSubst('twitch.tv', 'TWITCH', '#videos/[0-9]+#'),
+        $videoFactory->getSubst('youtube.com/embed', 'YOUTUBE', '#youtube.com/embed/([a-zA-Z0-9_-]+)#'),
+        $videoFactory->getSubst('youtube.com', 'YOUTUBE', '#youtube.com/watch?v=([a-zA-Z0-9_-]+)#'),
+        $videoFactory->getSubst('vimeo', 'VIMEO', '#vimeo.com/([0-9]+)#'),
+        $videoFactory->getSubst('twitch.tv', 'TWITCH', '#videos/[0-9]+#'),
         new NoMatchSubst() // This should always be the last one
     );
 }
