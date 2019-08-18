@@ -1,4 +1,5 @@
 config/database.php
 config/usermap.php
+config/extensions_override.php
 composer.lock
 vendor

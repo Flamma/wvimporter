@@ -158,9 +158,6 @@ class VideoSubst_322 extends VideoSubst {
 
 class VideoSubst_314 extends VideoSubst {
     function video_start(string $url, string $width, string $height) {
-        $videoAtts = ($height && $width) ? "=$width,$height" : '';
-        $id = $this->get_id($url);
-
         return "<BBVIDEO bbvideo0=\"$width\" bbvideo1=\"$height\" content=\"$url\">".
             "<s>[BBvideo=$width,$height]</s>$url";
     }
