@@ -230,7 +230,7 @@ abstract class WithStyleSubst extends Subst {
         $expressions = explode(';', $element->getAttribute('style'));
 
         $result ='';
-        foreach($expressions as $expression) {
+        foreach(array_reverse($expressions) as $expression) {
             preg_match($this->pattern, $expression, $matches);
             if(count($matches) > 0) {
                 switch(strtolower($matches[1])) {
