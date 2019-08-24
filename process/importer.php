@@ -32,6 +32,7 @@ function import($subforum) {
     print_r($users);
 
     create_threads($subforum, $sf_id, $users['registered'], $mysqli);
+    update_user_count($users['registered'], $mysqli);
 
     end_transaction($mysqli);
     $mysqli->close();
@@ -207,4 +208,14 @@ function query($sql, $mysqli) {
     }
 
     return $res;
+}
+
+function update_user_count($users, $mysqli) {
+    foreach($users as $user_id) {
+        $sql = 'update phpbb_users set user_posts='.
+            "(select count(post_id) from phpbb_posts where poster_id=$user_id) ".
+            "where user_id=$user_id"
+        ;
+        query($sql, $mysqli);
+    }
 }
