@@ -51,6 +51,7 @@ function get_substs() {
     return Array(
         new PSubst(),
         new EmptySubst('text'),
+        new SimpleSubst('br', '<br/>', "\n"),
         new SameSubst('b'),
         new SameSubst('s'),
         new TagBBCodeSubst('strong','B', 'b'),
@@ -130,4 +131,3 @@ function html_to_db_bbcode($content) {
 
     return parse_element($root, $substs);
 }
-
